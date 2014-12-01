@@ -32,6 +32,4 @@
     android:layout_below="@+id/button1"/>
 
 
-
-
 </RelativeLayout>

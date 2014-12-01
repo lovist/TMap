@@ -47,6 +47,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapLongClickListener, OnInfoWindowClickListener {
     class MyInfoWindowAdapter implements InfoWindowAdapter {
@@ -290,16 +291,19 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         EditText et = (EditText) findViewById(R.id.editText1);
         String location = et.getText().toString();
 
-        Geocoder gc = new Geocoder(this);
-        List<Address> list = gc.getFromLocationName(location, 10);
-        Address add = list.get(0);
-        String locality = add.getLocality();
-        Toast.makeText(this, location, Toast.LENGTH_LONG).show();
-        double lat = add.getLatitude();
-        double lon = add.getLongitude();
-        gotoLocation(lat, lon, 21);     //zoom level 2-21
-
+        Geocoder gc = new Geocoder(this, Locale.ENGLISH);
+        List<Address> list = gc.getFromLocationName(location, 20);
+        if (list.isEmpty()){}else {
+            Address add = list.get(0);
+            String locality = add.getLocality();
+            Toast.makeText(this, location, Toast.LENGTH_LONG).show();
+            double lat = add.getLatitude();
+            double lon = add.getLongitude();
+            gotoLocation(lat, lon, 21);     //zoom level 2-21
+        }
     }
+
+
 
     public void hideSoftKeyboard(View v) {
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -488,7 +492,7 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
             }
 
             //tvDistanceDuration.setText("Distance:"+distance + ", Duration:"+duration);
-
+            Toast.makeText(getApplicationContext(), "Distance:"+distance + ", Duration:"+duration, Toast.LENGTH_SHORT).show();
             // Drawing polyline in the Google Map for the i-th route
             map.addPolyline(lineOptions);
         }
