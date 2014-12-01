@@ -1,0 +1,36 @@
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+tools:context=".MapsActivity">
+
+<item
+    android:id="@+id/menu_overflow"
+    android:orderInCategory="11111"
+    android:showAsAction="always"
+    android:title="Menü">
+
+
+    <menu>
+        <!-- Refresh -->
+        <item
+            android:id="@+id/action_points"
+            android:showAsAction="ifRoom"
+            android:title="Pontok kezelése"/>
+
+        <!-- Help -->
+        <item
+            android:id="@+id/action_streetview"
+            android:showAsAction="never"
+            android:title="StreetView"/>
+
+        <!-- Check updates -->
+        <item
+            android:id="@+id/action_check_updates"
+            android:showAsAction="never"
+            android:title="Menü3"/>
+
+
+    </menu>
+</item>
+
+</menu>
