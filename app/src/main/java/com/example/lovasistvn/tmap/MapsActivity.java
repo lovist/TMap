@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapLongClickListener, OnInfoWindowClickListener {
+    LatLng actLatLong;
     class MyInfoWindowAdapter implements InfoWindowAdapter {
 
         private final View myContentsView;
@@ -76,7 +77,7 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
 
     }
 
-    LatLng actLatLong;
+
     final int RQS_GooglePlayServices = 1;
     TextView tvLocInfo;
     private GoogleMap map; // Might be null if Google Play services APK is not available.
@@ -103,7 +104,6 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         //DrawCircle(500);
         // Initializing
         markerPoints = new ArrayList<LatLng>();
-
         // Setting onclick event listener for the map
 
     }
@@ -181,7 +181,7 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         if (id==R.id.action_drawing_driving_route){
             if (actLatLong != null) {
                 DrawingDrivingRoute(actLatLong);
-                actLatLong=null;
+
             } else {
             Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
         }
@@ -201,56 +201,54 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
 
     public void DrawingDrivingRoute(LatLng point) {
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
+        Location myLocation  = map.getMyLocation();
 
-        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-        double latitude=location.getLatitude();
-        double longitude=location.getLongitude();
-        LatLng myposition = new LatLng(latitude,longitude);
+            double latitude = myLocation.getLatitude();
+            double longitude = myLocation.getLongitude();
+            LatLng myposition = new LatLng(latitude, longitude);
             markerPoints.clear();
             map.clear();
 
 
+            // Adding new item to the ArrayList
+            markerPoints.add(myposition);
+            markerPoints.add(point);
 
-        // Adding new item to the ArrayList
-        markerPoints.add(myposition);
-        markerPoints.add(point);
 
+            // Creating MarkerOptions
+            MarkerOptions options = new MarkerOptions();
 
-        // Creating MarkerOptions
-        MarkerOptions options = new MarkerOptions();
+            // Setting the position of the marker
+            options.position(point);
 
-        // Setting the position of the marker
-        options.position(point);
+            /**
+             * For the start location, the color of marker is GREEN and
+             * for the end location, the color of marker is RED.
+             */
+            if (markerPoints.size() == 1) {
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            } else if (markerPoints.size() == 2) {
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            }
 
-        /**
-         * For the start location, the color of marker is GREEN and
-         * for the end location, the color of marker is RED.
-         */
-        if(markerPoints.size()==1){
-            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        }else if(markerPoints.size()==2){
-            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            // Add new marker to the Google Map Android API V2
+            map.addMarker(options);
+
+            // Checks, whether start and end locations are captured
+            if (markerPoints.size() >= 2) {
+                LatLng origin = markerPoints.get(0);
+                LatLng dest = markerPoints.get(1);
+
+                // Getting URL to the Google Directions API
+                String url = getDirectionsUrl(origin, dest);
+
+                DownloadTask downloadTask = new DownloadTask();
+
+                // Start downloading json data from Google Directions API
+                downloadTask.execute(url);
+            }
         }
 
-        // Add new marker to the Google Map Android API V2
-        map.addMarker(options);
-
-        // Checks, whether start and end locations are captured
-        if(markerPoints.size() >= 2){
-            LatLng origin = markerPoints.get(0);
-            LatLng dest = markerPoints.get(1);
-
-            // Getting URL to the Google Directions API
-            String url = getDirectionsUrl(origin, dest);
-
-            DownloadTask downloadTask = new DownloadTask();
-
-            // Start downloading json data from Google Directions API
-            downloadTask.execute(url);
-        }
-    }
 
 
     @Override
