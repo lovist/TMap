@@ -6,18 +6,23 @@ package com.example.lovasistvn.tmap;
 public class MapPoint {
     private String pointname;
     private String pointaddress;
+    private String pointlatitude;
+    private String pointlongitude;
 
-    public MapPoint(String pointname, String pointadress) {
+
+    public MapPoint(String pointname, String pointaddress, String pointlatitude, String pointlongitude) {
         this.pointname = pointname;
-        this.pointaddress = pointadress;
+        this.pointaddress = pointaddress;
+        this.pointlatitude = pointlatitude;
+        this.pointlongitude = pointlongitude;
     }
 
     public String getPointaddress() {
         return pointaddress;
     }
 
-    public void setPointaddress(String pointadress) {
-        this.pointaddress = pointadress;
+    public void setPointaddress(String pointaddress) {
+        this.pointaddress = pointaddress;
     }
 
     public String getPointname() {
@@ -27,4 +32,24 @@ public class MapPoint {
     public void setPointname(String pointname) {
         this.pointname = pointname;
     }
+
+    public String getPointlatitude() {
+        return pointlatitude;
+    }
+
+    public void setPointlatitude(String pointlatitude) {
+        this.pointlatitude = pointlatitude;
+    }
+
+    public String getPointlongitude(){
+        return this.pointlongitude;
+    }
+
+    public void setPointlongitude(String pointlongitude){
+        this.pointlongitude = pointlongitude;
+    }
+
+
+
+
 }

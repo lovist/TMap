@@ -27,7 +27,12 @@ tools:context=".MapsActivity">
         <item
             android:id="@+id/action_check_updates"
             android:showAsAction="never"
-            android:title="Menü3"/>
+            android:title="Korrajzolas"/>
+
+        <item
+            android:id="@+id/action_drawing_driving_route"
+            android:showAsAction="never"
+            android:title="Útvonal tervezés"/>
 
 
     </menu>

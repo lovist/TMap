@@ -1,8 +1,12 @@
 package com.example.lovasistvn.tmap;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -44,7 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnInfoWindowClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapLongClickListener, OnInfoWindowClickListener {
     class MyInfoWindowAdapter implements InfoWindowAdapter {
 
         private final View myContentsView;
@@ -91,7 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         map.getUiSettings().setMyLocationButtonEnabled(true);
         map.getUiSettings().setAllGesturesEnabled(true);
         //map.setTrafficEnabled(true);
-        //map.setOnMapLongClickListener(this);
+        map.setOnMapLongClickListener(this);
         map.setInfoWindowAdapter(new MyInfoWindowAdapter());
         map.setOnInfoWindowClickListener(this);
         map.getUiSettings().setAllGesturesEnabled(true);
@@ -100,54 +104,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         markerPoints = new ArrayList<LatLng>();
 
         // Setting onclick event listener for the map
-        map.setOnMapLongClickListener(new OnMapLongClickListener() {
 
-            @Override
-            public void onMapLongClick(LatLng point) {
-
-                // Already two locations
-                if(markerPoints.size()>1){
-                    markerPoints.clear();
-                    map.clear();
-                }
-
-                // Adding new item to the ArrayList
-                markerPoints.add(point);
-
-                // Creating MarkerOptions
-                MarkerOptions options = new MarkerOptions();
-
-                // Setting the position of the marker
-                options.position(point);
-
-                /**
-                 * For the start location, the color of marker is GREEN and
-                 * for the end location, the color of marker is RED.
-                 */
-                if(markerPoints.size()==1){
-                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                }else if(markerPoints.size()==2){
-                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                }
-
-                // Add new marker to the Google Map Android API V2
-                map.addMarker(options);
-
-                // Checks, whether start and end locations are captured
-                if(markerPoints.size() >= 2){
-                    LatLng origin = markerPoints.get(0);
-                    LatLng dest = markerPoints.get(1);
-
-                    // Getting URL to the Google Directions API
-                    String url = getDirectionsUrl(origin, dest);
-
-                    DownloadTask downloadTask = new DownloadTask();
-
-                    // Start downloading json data from Google Directions API
-                    downloadTask.execute(url);
-                }
-            }
-        });
     }
 
     @Override
@@ -211,6 +168,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
                 b.putDouble("lonKey", actLatLong.longitude);
                 intent.putExtras(b); //Put your id to your next Intent
                 startActivity(intent);
+                actLatLong=null;
                 //finish();
             } else {
                 Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
@@ -219,18 +177,79 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
             //startActivity(masikActivity);
         }
 
+        if (id==R.id.action_drawing_driving_route){
+            if (actLatLong != null) {
+                DrawingDrivingRoute(actLatLong);
+                actLatLong=null;
+            } else {
+            Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
+        }
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
-    /*@Override
+    @Override
     public void onMapLongClick(LatLng point) {
         //tvLocInfo.setText("New marker added@" + point.toString());
         Marker newMarker = map.addMarker(new MarkerOptions().position(point).snippet(point.toString()));
         newMarker.setTitle(newMarker.getId());
-    }*/
+    }
 
 
 
+    public void DrawingDrivingRoute(LatLng point) {
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+
+        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        double latitude=location.getLatitude();
+        double longitude=location.getLongitude();
+        LatLng myposition = new LatLng(latitude,longitude);
+            markerPoints.clear();
+            map.clear();
+
+
+
+        // Adding new item to the ArrayList
+        markerPoints.add(myposition);
+        markerPoints.add(point);
+
+
+        // Creating MarkerOptions
+        MarkerOptions options = new MarkerOptions();
+
+        // Setting the position of the marker
+        options.position(point);
+
+        /**
+         * For the start location, the color of marker is GREEN and
+         * for the end location, the color of marker is RED.
+         */
+        if(markerPoints.size()==1){
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        }else if(markerPoints.size()==2){
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        }
+
+        // Add new marker to the Google Map Android API V2
+        map.addMarker(options);
+
+        // Checks, whether start and end locations are captured
+        if(markerPoints.size() >= 2){
+            LatLng origin = markerPoints.get(0);
+            LatLng dest = markerPoints.get(1);
+
+            // Getting URL to the Google Directions API
+            String url = getDirectionsUrl(origin, dest);
+
+            DownloadTask downloadTask = new DownloadTask();
+
+            // Start downloading json data from Google Directions API
+            downloadTask.execute(url);
+        }
+    }
 
 
     @Override

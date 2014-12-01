@@ -23,6 +23,8 @@ public class PointsActivity extends Activity implements AbsListView.MultiChoiceM
 
     private String[] pointname =null;
     private String[] pointaddress =null;
+    private String[] pointlatitude =null;
+    private String[] pointlongitude =null;
     ListView listView=null;
     Context contex=null;
     MyListAdapter adapter=null;
@@ -39,9 +41,11 @@ public class PointsActivity extends Activity implements AbsListView.MultiChoiceM
         inputSearch = (EditText) findViewById(R.id.inputSearch);
         pointname = new String[] { "Sunil Gupta", "Abhishek Tripathi","Sandeep Pal", "Amit Verma" };
         pointaddress = new String[] { "sunil android", "Abhi cool","Sandy duffer", "Budhiya jokar"};
+        pointlatitude = new String[] { "Sunil Gupta", "Abhishek Tripathi","Sandeep Pal", "Amit Verma" };
+        pointlongitude = new String[] { "sunil android", "Abhi cool","Sandy duffer", "Budhiya jokar"};
 
         for(int index=0; index< pointname.length; index++){
-            MapPoint details=new MapPoint(pointname[index], pointaddress[index]);
+            MapPoint details=new MapPoint(pointname[index], pointaddress[index],pointlatitude[index], pointlongitude[index]);
             list.add(details);
         }
 
