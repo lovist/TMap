@@ -1,6 +1,6 @@
 package com.example.lovasistvn.tmap;
 
-/**
+/**123
  * Created by Lovas Istvan on 2014.11.21..
  */
 public class MapPoint {
