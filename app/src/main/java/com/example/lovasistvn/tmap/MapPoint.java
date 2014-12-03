@@ -1,16 +1,29 @@
 package com.example.lovasistvn.tmap;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.Editable;
+
 /**
  * Created by Lovas Istvan on 2014.11.21..
  */
-public class MapPoint {
+public class MapPoint implements Parcelable {
     private String pointname;
     private String pointaddress;
-    private String pointlatitude;
-    private String pointlongitude;
+    private double pointlatitude;
+    private double pointlongitude;
 
+    public MapPoint() {
+    }
 
-    public MapPoint(String pointname, String pointaddress, String pointlatitude, String pointlongitude) {
+    public MapPoint(Parcel parcel) {
+        this.pointname = parcel.readString();
+        this.pointaddress = parcel.readString();
+        this.pointlatitude = parcel.readDouble();
+        this.pointlongitude = parcel.readDouble();
+    }
+
+    public MapPoint(String pointname, String pointaddress, double pointlatitude, double pointlongitude) {
         this.pointname = pointname;
         this.pointaddress = pointaddress;
         this.pointlatitude = pointlatitude;
@@ -26,30 +39,51 @@ public class MapPoint {
     }
 
     public String getPointname() {
-        return pointname;
+        return this.pointname;
     }
 
     public void setPointname(String pointname) {
         this.pointname = pointname;
     }
 
-    public String getPointlatitude() {
-        return pointlatitude;
+    public double getPointlatitude() {
+        return this.pointlatitude;
     }
 
-    public void setPointlatitude(String pointlatitude) {
+    public void setPointlatitude(double pointlatitude) {
         this.pointlatitude = pointlatitude;
     }
 
-    public String getPointlongitude(){
+    public double getPointlongitude(){
         return this.pointlongitude;
     }
 
-    public void setPointlongitude(String pointlongitude){
+    public void setPointlongitude(double pointlongitude){
         this.pointlongitude = pointlongitude;
     }
 
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
+    @Override
+    public void writeToParcel(Parcel parcel, int i) { // OVERRIDE METHOD #2
+        parcel.writeString(this.pointname);
+        parcel.writeString(this.pointaddress);
+        parcel.writeDouble(this.pointlatitude);
+        parcel.writeDouble(this.pointlongitude);
+    }
 
+    public static final Parcelable.Creator CREATOR
+            = new Parcelable.Creator() {
+        public MapPoint createFromParcel(Parcel in) {
+            return new MapPoint(in);
+        }
+
+        public MapPoint[] newArray(int size) {
+            return new MapPoint[size];
+        }
+    };
 }

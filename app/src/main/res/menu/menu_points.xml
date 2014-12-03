@@ -2,12 +2,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.lovasistvn.tmap.PointsActivity">
 
-    <item android:id="@+id/action_add_new_point"
-        android:title="Új pont felvétele"
-        android:orderInCategory="100"
-        android:showAsAction="always" />
+
     <item
-        android:id="@+id/delete"
-        android:title="delete"/>
+        android:id="@+id/menu_overflow2"
+        android:orderInCategory="11111"
+        android:showAsAction="always"
+        android:title="Menü">
+        <menu>
+            <item android:id="@+id/action_add_new_point"
+                android:title="Új pont felvétele"/>
+            <item
+                android:id="@+id/edit"
+                android:title="Szerkesztés"/>
+            <item
+                android:id="@+id/delete"
+                android:title="Törlés"/>
+
+
+        </menu>
+    </item>
 
 </menu>

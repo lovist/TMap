@@ -1,12 +1,10 @@
 package com.example.lovasistvn.tmap;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -51,6 +49,7 @@ import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapLongClickListener, OnInfoWindowClickListener {
     LatLng actLatLong;
+
     class MyInfoWindowAdapter implements InfoWindowAdapter {
 
         private final View myContentsView;
@@ -79,9 +78,9 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
 
 
     final int RQS_GooglePlayServices = 1;
-    TextView tvLocInfo;
     private GoogleMap map; // Might be null if Google Play services APK is not available.
     ArrayList<LatLng> markerPoints;
+    ArrayList<MapPoint> dbMapPoints;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +105,12 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         markerPoints = new ArrayList<LatLng>();
         // Setting onclick event listener for the map
 
+
+        MySQLiteHelper db = new MySQLiteHelper(this);
+        //MapPoint m = new MapPoint("t1", "asd",2.0,2.0);
+        Log.d("Insert: ", "Inserting ..");
+        //db.addPoint(m);
+        dbMapPoints = db.getAllPoints();
     }
 
     @Override
@@ -150,11 +155,12 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_points) {
-            Intent masikActivity = new Intent(this, PointsActivity.class);
-            startActivity(masikActivity);
+            Intent i = new Intent(this, PointsActivity.class);
+            i.putParcelableArrayListExtra("points", dbMapPoints);
+            startActivityForResult(i, 1);
         }
 
-        if (id==R.id.action_check_updates){
+        if (id == R.id.action_check_updates) {
             DrawCircle(50000);
         }
 
@@ -169,7 +175,7 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
                 b.putDouble("lonKey", actLatLong.longitude);
                 intent.putExtras(b); //Put your id to your next Intent
                 startActivity(intent);
-                actLatLong=null;
+                actLatLong = null;
                 //finish();
             } else {
                 Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
@@ -178,13 +184,13 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
             //startActivity(masikActivity);
         }
 
-        if (id==R.id.action_drawing_driving_route){
+        if (id == R.id.action_drawing_driving_route) {
             if (actLatLong != null) {
                 DrawingDrivingRoute(actLatLong);
 
             } else {
-            Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
-        }
+                Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -198,57 +204,55 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
     }
 
 
-
     public void DrawingDrivingRoute(LatLng point) {
 
-        Location myLocation  = map.getMyLocation();
+        Location myLocation = map.getMyLocation();
 
-            double latitude = myLocation.getLatitude();
-            double longitude = myLocation.getLongitude();
-            LatLng myposition = new LatLng(latitude, longitude);
-            markerPoints.clear();
-            map.clear();
-
-
-            // Adding new item to the ArrayList
-            markerPoints.add(myposition);
-            markerPoints.add(point);
+        double latitude = myLocation.getLatitude();
+        double longitude = myLocation.getLongitude();
+        LatLng myposition = new LatLng(latitude, longitude);
+        markerPoints.clear();
+        map.clear();
 
 
-            // Creating MarkerOptions
-            MarkerOptions options = new MarkerOptions();
+        // Adding new item to the ArrayList
+        markerPoints.add(myposition);
+        markerPoints.add(point);
 
-            // Setting the position of the marker
-            options.position(point);
 
-            /**
-             * For the start location, the color of marker is GREEN and
-             * for the end location, the color of marker is RED.
-             */
-            if (markerPoints.size() == 1) {
-                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-            } else if (markerPoints.size() == 2) {
-                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            }
+        // Creating MarkerOptions
+        MarkerOptions options = new MarkerOptions();
 
-            // Add new marker to the Google Map Android API V2
-            map.addMarker(options);
+        // Setting the position of the marker
+        options.position(point);
 
-            // Checks, whether start and end locations are captured
-            if (markerPoints.size() >= 2) {
-                LatLng origin = markerPoints.get(0);
-                LatLng dest = markerPoints.get(1);
-
-                // Getting URL to the Google Directions API
-                String url = getDirectionsUrl(origin, dest);
-
-                DownloadTask downloadTask = new DownloadTask();
-
-                // Start downloading json data from Google Directions API
-                downloadTask.execute(url);
-            }
+        /**
+         * For the start location, the color of marker is GREEN and
+         * for the end location, the color of marker is RED.
+         */
+        if (markerPoints.size() == 1) {
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        } else if (markerPoints.size() == 2) {
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         }
 
+        // Add new marker to the Google Map Android API V2
+        map.addMarker(options);
+
+        // Checks, whether start and end locations are captured
+        if (markerPoints.size() >= 2) {
+            LatLng origin = markerPoints.get(0);
+            LatLng dest = markerPoints.get(1);
+
+            // Getting URL to the Google Directions API
+            String url = getDirectionsUrl(origin, dest);
+
+            DownloadTask downloadTask = new DownloadTask();
+
+            // Start downloading json data from Google Directions API
+            downloadTask.execute(url);
+        }
+    }
 
 
     @Override
@@ -291,7 +295,8 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
 
         Geocoder gc = new Geocoder(this, Locale.ENGLISH);
         List<Address> list = gc.getFromLocationName(location, 20);
-        if (list.isEmpty()){}else {
+        if (list.isEmpty()) {
+        } else {
             Address add = list.get(0);
             String locality = add.getLocality();
             Toast.makeText(this, location, Toast.LENGTH_LONG).show();
@@ -300,7 +305,6 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
             gotoLocation(lat, lon, 21);     //zoom level 2-21
         }
     }
-
 
 
     public void hideSoftKeyboard(View v) {
@@ -326,35 +330,37 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         Circle myCircle = map.addCircle(circleOptions);
     }
 
-    private String getDirectionsUrl(LatLng origin,LatLng dest){
+    private String getDirectionsUrl(LatLng origin, LatLng dest) {
 
         // Origin of route
-        String str_origin = "origin="+origin.latitude+","+origin.longitude;
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
 
         // Destination of route
-        String str_dest = "destination="+dest.latitude+","+dest.longitude;
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
 
         // Sensor enabled
         String sensor = "sensor=false";
 
         // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+        String parameters = str_origin + "&" + str_dest + "&" + sensor;
 
         // Output format
         String output = "json";
 
         // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
 
         return url;
     }
 
-    /** A method to download json data from url */
-    private String downloadUrl(String strUrl) throws IOException{
+    /**
+     * A method to download json data from url
+     */
+    private String downloadUrl(String strUrl) throws IOException {
         String data = "";
         InputStream iStream = null;
         HttpURLConnection urlConnection = null;
-        try{
+        try {
             URL url = new URL(strUrl);
 
             // Creating an http connection to communicate with url
@@ -368,10 +374,10 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
 
             BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
 
-            StringBuffer sb  = new StringBuffer();
+            StringBuffer sb = new StringBuffer();
 
             String line = "";
-            while( ( line = br.readLine())  != null){
+            while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
 
@@ -379,9 +385,9 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
 
             br.close();
 
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.d("Exception while downloading url", e.toString());
-        }finally{
+        } finally {
             iStream.close();
             urlConnection.disconnect();
         }
@@ -398,11 +404,11 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
             // For storing data from web service
             String data = "";
 
-            try{
+            try {
                 // Fetching the data from web service
                 data = downloadUrl(url[0]);
-            }catch(Exception e){
-                Log.d("Background Task",e.toString());
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
             }
             return data;
         }
@@ -420,8 +426,10 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         }
     }
 
-    /** A class to parse the Google Places in JSON format */
-    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> >{
+    /**
+     * A class to parse the Google Places in JSON format
+     */
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
         // Parsing the data in non-ui thread
         @Override
@@ -430,13 +438,13 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
             JSONObject jObject;
             List<List<HashMap<String, String>>> routes = null;
 
-            try{
+            try {
                 jObject = new JSONObject(jsonData[0]);
                 DirectionsJSONParser parser = new DirectionsJSONParser();
 
                 // Starts parsing data
                 routes = parser.parse(jObject);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return routes;
@@ -451,13 +459,13 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
             String distance = "";
             String duration = "";
 
-            if(result.size()<1){
+            if (result.size() < 1) {
                 Toast.makeText(getBaseContext(), "No Points", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             // Traversing through all the routes
-            for(int i=0;i<result.size();i++){
+            for (int i = 0; i < result.size(); i++) {
                 points = new ArrayList<LatLng>();
                 lineOptions = new PolylineOptions();
 
@@ -465,14 +473,14 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
                 List<HashMap<String, String>> path = result.get(i);
 
                 // Fetching all the points in i-th route
-                for(int j=0;j<path.size();j++){
-                    HashMap<String,String> point = path.get(j);
+                for (int j = 0; j < path.size(); j++) {
+                    HashMap<String, String> point = path.get(j);
 
-                    if(j==0){    // Get distance from the list
-                        distance = (String)point.get("distance");
+                    if (j == 0) {    // Get distance from the list
+                        distance = (String) point.get("distance");
                         continue;
-                    }else if(j==1){ // Get duration from the list
-                        duration = (String)point.get("duration");
+                    } else if (j == 1) { // Get duration from the list
+                        duration = (String) point.get("duration");
                         continue;
                     }
 
@@ -490,9 +498,22 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
             }
 
             //tvDistanceDuration.setText("Distance:"+distance + ", Duration:"+duration);
-            Toast.makeText(getApplicationContext(), "Distance:"+distance + ", Duration:"+duration, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Distance:" + distance + ", Duration:" + duration, Toast.LENGTH_SHORT).show();
             // Drawing polyline in the Google Map for the i-th route
             map.addPolyline(lineOptions);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == 3) {
+            MySQLiteHelper db = new MySQLiteHelper(this);
+            dbMapPoints = db.getAllPoints();
+            Toast.makeText(getApplicationContext(), "Új pont lett hozzáadva hozzáadva..", Toast.LENGTH_SHORT).show();
+
+
         }
     }
 }

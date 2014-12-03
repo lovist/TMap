@@ -5,6 +5,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.renderscript.Element;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -28,7 +29,8 @@ public class PointsActivity extends Activity implements AbsListView.MultiChoiceM
     ListView listView=null;
     Context contex=null;
     MyListAdapter adapter=null;
-    private List<MapPoint> list=new ArrayList<MapPoint>();
+    //private List<MapPoint> DbMapPoints=new ArrayList<MapPoint>();
+    List<MapPoint> pointsList;
 
     EditText inputSearch;
 
@@ -39,17 +41,16 @@ public class PointsActivity extends Activity implements AbsListView.MultiChoiceM
         contex=this;
         listView = (ListView) findViewById(R.id.listview);
         inputSearch = (EditText) findViewById(R.id.inputSearch);
-        pointname = new String[] { "Sunil Gupta", "Abhishek Tripathi","Sandeep Pal", "Amit Verma" };
-        pointaddress = new String[] { "sunil android", "Abhi cool","Sandy duffer", "Budhiya jokar"};
-        pointlatitude = new String[] { "Sunil Gupta", "Abhishek Tripathi","Sandeep Pal", "Amit Verma" };
-        pointlongitude = new String[] { "sunil android", "Abhi cool","Sandy duffer", "Budhiya jokar"};
 
-        for(int index=0; index< pointname.length; index++){
-            MapPoint details=new MapPoint(pointname[index], pointaddress[index],pointlatitude[index], pointlongitude[index]);
-            list.add(details);
-        }
+        //DatabaseHandler db = new DatabaseHandler(this);
+        //List<MapPoint> points = db.getAllPoints();
+        Intent i = this.getIntent();
+        pointsList=null;
+        pointsList = i.getParcelableArrayListExtra("points");
 
-        adapter=new MyListAdapter(contex, list);
+        //List<MapPoint> points = getIntent().getParcelableArrayListExtra("pointslist");
+
+        adapter=new MyListAdapter(contex, pointsList);
         listView.setAdapter(adapter);
         listView.setMultiChoiceModeListener(this);
         listView.setChoiceMode(listView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -92,6 +93,44 @@ public class PointsActivity extends Activity implements AbsListView.MultiChoiceM
         final int checkedCount = listView.getCheckedItemCount();
         arg0.setTitle(checkedCount + " Selected");
         adapter.toggleSelection(arg1);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_points, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_add_new_point) {
+            Intent i = new Intent(this, NewPointActivity.class);
+            //startActivity(i);
+            startActivityForResult(i, 2);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 2 && resultCode == Activity.RESULT_OK){
+            MapPoint m = (MapPoint) data.getParcelableExtra("key");
+            pointsList.add(m);
+            adapter=new MyListAdapter(contex, pointsList);
+            listView.setAdapter(adapter);
+            listView.setMultiChoiceModeListener(this);
+            listView.setChoiceMode(listView.CHOICE_MODE_MULTIPLE_MODAL);
+            Toast.makeText(getApplicationContext(), "Új pont hozzáadva..."+m.getPointlatitude()+" "+m.getPointlongitude(), Toast.LENGTH_SHORT).show();
+
+            setResult(3);
+        }
     }
 
 
