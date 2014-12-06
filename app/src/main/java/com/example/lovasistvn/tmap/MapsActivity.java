@@ -126,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
 
         if (resultCode == ConnectionResult.SUCCESS) {
-            Toast.makeText(getApplicationContext(), "isGooglePlayServicesAvailable SUCCESS", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), "isGooglePlayServicesAvailable SUCCESS", Toast.LENGTH_LONG).show();
         } else {
             GooglePlayServicesUtil.getErrorDialog(resultCode, this, RQS_GooglePlayServices);
         }
@@ -174,8 +174,6 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
             if (isOnline()) {
                 if (actLatLong != null) {
 
-                    Intent masikActivity = new Intent(this, StreetViewActivity.class);
-
                     Intent intent = new Intent(MapsActivity.this, StreetViewActivity.class);
                     Bundle b = new Bundle();
                     b.putDouble("latKey", actLatLong.latitude);
@@ -210,18 +208,37 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         if(id==R.id.action_select_range){
             final AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-            alert.setTitle("Alert Box");
-            alert.setMessage("Edit Text");
+            alert.setTitle("Beállítás");
+            alert.setMessage("Keresési távolság:");
 
             LinearLayout linear=new LinearLayout(this);
 
             linear.setOrientation(LinearLayout.VERTICAL);
-            TextView text=new TextView(this);
-            text.setText("Hello Android");
+            final TextView text=new TextView(this);
+            text.setText("0 km");
             text.setPadding(10, 10, 10, 10);
 
             final SeekBar seek=new SeekBar(this);
             seek.setMax(25000);
+
+            seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    // TODO Auto-generated method stub
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                    // TODO Auto-generated method stub
+                }
+
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+                    // TODO Auto-generated method stub
+                    text.setText((seek.getProgress()/1000)+" km");
+                }
+            });
 
             linear.addView(seek);
             linear.addView(text);
