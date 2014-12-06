@@ -18,12 +18,13 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     // Database Version
     private static final int DATABASE_VERSION = 1;
     // Database Name
-    private static final String DATABASE_NAME = "PointsDB";
+    private static final String DATABASE_NAME = "MapPointsDB";
 
     // Books table name
     private static final String TABLE_MAPPOINTS = "mappoints";
 
     // Books Table Columns names
+    private static final String KEY_ID ="pointid";
     private static final String KEY_NAME = "name";
     private static final String KEY_ADDR = "address";
     private static final String KEY_LAT = "latitude";
@@ -37,7 +38,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // SQL statement to create book table
         String CREATE_POINTS_TABLE = "CREATE TABLE mappoints ( " +
-                "name TEXT PRIMARY KEY, " +
+                "pointid INTEGER PRIMARY KEY AUTOINCREMENT, " + "name TEXT, " +
                 "address TEXT, "+
                 "latitude TEXT, "+"longitude TEXT )";
 
@@ -53,6 +54,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         // create fresh books table
         this.onCreate(db);
     }
+
 
     public void addPoint(MapPoint point){
         // 1. get reference to writable DB
@@ -75,7 +77,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<MapPoint> getAllPoints() {
-        ArrayList<MapPoint> books = new ArrayList<MapPoint>();
+        ArrayList<MapPoint> points = new ArrayList<MapPoint>();
 
         // 1. build the query
         String query = "SELECT  * FROM " + TABLE_MAPPOINTS;
@@ -89,19 +91,58 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 point = new MapPoint();
-                point.setPointname(cursor.getString(0));
-                point.setPointaddress(cursor.getString(1));
-                point.setPointlatitude(Double.parseDouble(cursor.getString(2)));
-                point.setPointlongitude(Double.parseDouble(cursor.getString(2)));
+                point.setPointid(Integer.parseInt(cursor.getString(0)));
+                point.setPointname(cursor.getString(1));
+                point.setPointaddress(cursor.getString(2));
+                point.setPointlatitude(Double.parseDouble(cursor.getString(3)));
+                point.setPointlongitude(Double.parseDouble(cursor.getString(4)));
 
                 // Add point to books
-                books.add(point);
+                points.add(point);
             } while (cursor.moveToNext());
         }
 
-        Log.d("getAllBooks()", books.toString());
+        Log.d("getAllBooks()", points.toString());
 
         // return books
-        return books;
+        return points;
+    }
+
+    // Updating single mappoint
+    public int updatePoint(MapPoint point) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_NAME, point.getPointname()); // get title
+        values.put(KEY_ADDR, point.getPointaddress()); // get author
+        values.put(KEY_LAT, point.getPointlatitude()); // get author
+        values.put(KEY_LON, point.getPointlongitude()); // get author
+
+        // updating row
+        return db.update(TABLE_MAPPOINTS, values, KEY_ID + " = ?",
+                new String[] { String.valueOf(point.getPointid()) });
+    }
+
+    // Deleting single contact
+    public void deletePoint(MapPoint point) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_MAPPOINTS, KEY_ID + " = ?",
+                new String[] { String.valueOf(point.getPointid())});
+        db.close();
+    }
+
+    public int GetMaxID(){
+        int id = 0;
+        final String query = "SELECT MAX(pointid) FROM "+TABLE_MAPPOINTS;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor mCursor = db.rawQuery(query, null);
+
+        if(mCursor.moveToFirst())
+            do{
+                id = mCursor.getInt((0));
+            }while(mCursor.moveToNext());
+
+
+        return id;
     }
 }

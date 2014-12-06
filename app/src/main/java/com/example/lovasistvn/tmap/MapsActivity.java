@@ -1,10 +1,13 @@
 package com.example.lovasistvn.tmap;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -107,9 +110,7 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
 
 
         MySQLiteHelper db = new MySQLiteHelper(this);
-        //MapPoint m = new MapPoint("t1", "asd",2.0,2.0);
-        Log.d("Insert: ", "Inserting ..");
-        //db.addPoint(m);
+        Log.d("getAllPoints: ", "Getting ..");
         dbMapPoints = db.getAllPoints();
     }
 
@@ -165,33 +166,42 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         }
 
         if (id == R.id.action_streetview) {
-            if (actLatLong != null) {
+            if (isOnline()) {
+                if (actLatLong != null) {
 
-                Intent masikActivity = new Intent(this, StreetViewActivity.class);
+                    Intent masikActivity = new Intent(this, StreetViewActivity.class);
 
-                Intent intent = new Intent(MapsActivity.this, StreetViewActivity.class);
-                Bundle b = new Bundle();
-                b.putDouble("latKey", actLatLong.latitude);
-                b.putDouble("lonKey", actLatLong.longitude);
-                intent.putExtras(b); //Put your id to your next Intent
-                startActivity(intent);
-                actLatLong = null;
-                //finish();
-            } else {
-                Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MapsActivity.this, StreetViewActivity.class);
+                    Bundle b = new Bundle();
+                    b.putDouble("latKey", actLatLong.latitude);
+                    b.putDouble("lonKey", actLatLong.longitude);
+                    intent.putExtras(b); //Put your id to your next Intent
+                    startActivity(intent);
+                    actLatLong = null;
+                    //finish();
+                } else {
+                    Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
+                }
+            }else{
+                Toast.makeText(this, "Nincs internet kapcsolat!", Toast.LENGTH_SHORT).show();
             }
+
 
             //startActivity(masikActivity);
         }
 
         if (id == R.id.action_drawing_driving_route) {
-            if (actLatLong != null) {
-                DrawingDrivingRoute(actLatLong);
-
-            } else {
-                Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
+            if(isOnline()) {
+                if (actLatLong != null) {
+                    DrawingDrivingRoute(actLatLong);
+                } else {
+                    Toast.makeText(this, "Nincs pont kiválasztva!!!", Toast.LENGTH_SHORT).show();
+                }
+            }else{
+                Toast.makeText(this, "Nincs internet kapcsolat!", Toast.LENGTH_SHORT).show();
             }
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -507,14 +517,18 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == 1 && resultCode == 3) {
             MySQLiteHelper db = new MySQLiteHelper(this);
             dbMapPoints = db.getAllPoints();
             Toast.makeText(getApplicationContext(), "Új pont lett hozzáadva hozzáadva..", Toast.LENGTH_SHORT).show();
-
-
         }
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }
 

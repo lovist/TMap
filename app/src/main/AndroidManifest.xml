@@ -40,14 +40,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.lovasistvn.tmap.masodikActivity"
-            android:label="@string/title_activity_masodik" >
-        </activity>
-        <activity
-            android:name="com.example.lovasistvn.tmap.pontok"
-            android:label="@string/title_activity_pontok" >
-        </activity>
-        <activity
             android:name="com.example.lovasistvn.tmap.PointsActivity"
             android:label="@string/title_activity_pontok" >
         </activity>

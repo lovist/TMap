@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.renderscript.Element;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -57,17 +58,35 @@ public class PointsActivity extends Activity implements AbsListView.MultiChoiceM
     }
     @Override
     public boolean onActionItemClicked(ActionMode arg0, MenuItem arg1) {
+        SparseBooleanArray selected;
+        MapPoint selecteditem;
         switch (arg1.getItemId()) {
             case R.id.delete:
-                SparseBooleanArray selected = adapter.getSelectedIds();
+                selected = adapter.getSelectedIds();
                 for (int i = (selected.size() - 1); i >= 0; i--) {
                     if (selected.valueAt(i)) {
-                        MapPoint selecteditem = adapter.getItem(selected.keyAt(i));
+                        selecteditem = adapter.getItem(selected.keyAt(i));
                         adapter.remove(selecteditem);
+
+                        MySQLiteHelper db = new MySQLiteHelper(this);
+                        db.deletePoint(selecteditem);
+
                     }
                 }
                 // Close CAB
+                setResult(3);
                 arg0.finish();
+                return true;
+            case R.id.action_edit_point:
+                selected = adapter.getSelectedIds();
+                if(selected.size()==1){
+                    Intent i = new Intent(this, NewPointActivity.class);
+                    selecteditem = adapter.getItem(selected.keyAt(0));
+                    i.putExtra("selecteditem", selecteditem);
+                    startActivityForResult(i, 4);
+                }else{
+                    Toast.makeText(getApplicationContext(), "Nem egy pont van kijelölve!", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             default:
                 return false;
@@ -113,6 +132,7 @@ public class PointsActivity extends Activity implements AbsListView.MultiChoiceM
             startActivityForResult(i, 2);
         }
 
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -129,6 +149,19 @@ public class PointsActivity extends Activity implements AbsListView.MultiChoiceM
             listView.setChoiceMode(listView.CHOICE_MODE_MULTIPLE_MODAL);
             Toast.makeText(getApplicationContext(), "Új pont hozzáadva..."+m.getPointlatitude()+" "+m.getPointlongitude(), Toast.LENGTH_SHORT).show();
 
+            setResult(3);
+        }
+
+        if(requestCode == 4 && resultCode == 4){
+            MySQLiteHelper db = new MySQLiteHelper(this);
+            Log.d("getAllPoints: ", "Getting ..");
+            pointsList = db.getAllPoints();
+
+            adapter=new MyListAdapter(contex, pointsList);
+            listView.setAdapter(adapter);
+            listView.setMultiChoiceModeListener(this);
+            listView.setChoiceMode(listView.CHOICE_MODE_MULTIPLE_MODAL);
+            Toast.makeText(getApplicationContext(), "Pont módosítva...", Toast.LENGTH_SHORT).show();
             setResult(3);
         }
     }

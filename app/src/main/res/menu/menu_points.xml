@@ -12,7 +12,7 @@
             <item android:id="@+id/action_add_new_point"
                 android:title="Új pont felvétele"/>
             <item
-                android:id="@+id/edit"
+                android:id="@+id/action_edit_point"
                 android:title="Szerkesztés"/>
             <item
                 android:id="@+id/delete"

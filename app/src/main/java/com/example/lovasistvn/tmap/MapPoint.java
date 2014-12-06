@@ -8,6 +8,7 @@ import android.text.Editable;
  * Created by Lovas Istvan on 2014.11.21..
  */
 public class MapPoint implements Parcelable {
+    private int pointid;
     private String pointname;
     private String pointaddress;
     private double pointlatitude;
@@ -17,17 +18,26 @@ public class MapPoint implements Parcelable {
     }
 
     public MapPoint(Parcel parcel) {
+        this.pointid=parcel.readInt();
         this.pointname = parcel.readString();
         this.pointaddress = parcel.readString();
         this.pointlatitude = parcel.readDouble();
         this.pointlongitude = parcel.readDouble();
     }
 
-    public MapPoint(String pointname, String pointaddress, double pointlatitude, double pointlongitude) {
+    public MapPoint(int pointid, String pointname, String pointaddress, double pointlatitude, double pointlongitude) {
+        this.pointid= pointid;
         this.pointname = pointname;
         this.pointaddress = pointaddress;
         this.pointlatitude = pointlatitude;
         this.pointlongitude = pointlongitude;
+    }
+    public int getPointid(){
+        return this.pointid;
+    }
+
+    public void setPointid(int pointid){
+        this.pointid=pointid;
     }
 
     public String getPointaddress() {
@@ -70,6 +80,7 @@ public class MapPoint implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) { // OVERRIDE METHOD #2
+        parcel.writeInt(this.pointid);
         parcel.writeString(this.pointname);
         parcel.writeString(this.pointaddress);
         parcel.writeDouble(this.pointlatitude);

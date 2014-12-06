@@ -3,6 +3,7 @@ package com.example.lovasistvn.tmap;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -34,21 +35,41 @@ public class NewPointActivity extends Activity {
         nameText = (EditText) findViewById(R.id.new_point_name);
         AddressText = (EditText) findViewById(R.id.new_point_address);
 
-        findViewById(R.id.save_point_button).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                LatLng ltg = AddressToGPS(AddressText.getText().toString());
-                MapPoint m = new MapPoint(nameText.getText().toString(), AddressText.getText().toString(),ltg.latitude,ltg.longitude);
-                Intent data = new Intent();
-                data.putExtra("key", m);
-                setResult(Activity.RESULT_OK, data);
+        Intent i = this.getIntent();
+        final MapPoint m = (MapPoint) i.getParcelableExtra("selecteditem");
+        if(m!=null){
+            nameText.setText(m.getPointname());
+            AddressText.setText(m.getPointaddress());
 
-                MySQLiteHelper db = new MySQLiteHelper(getApplicationContext());
-                db.addPoint(m);
-                finish();
-            }        });
+            findViewById(R.id.save_point_button).setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    LatLng ltg = AddressToGPS(AddressText.getText().toString());
+                    MySQLiteHelper db = new MySQLiteHelper(getApplicationContext());
+                    m.setPointname(nameText.getText().toString());
+                    m.setPointaddress(AddressText.getText().toString());
+                    db.updatePoint(m);
+                    Intent data = new Intent();
+                    data.putExtra("editedpoint", m);
+                    setResult(4);
+                    finish();
+                }        });
 
+
+        }else {
+            findViewById(R.id.save_point_button).setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    LatLng ltg = AddressToGPS(AddressText.getText().toString());
+                    MySQLiteHelper db = new MySQLiteHelper(getApplicationContext());
+                    int id=db.GetMaxID();
+                    MapPoint m = new MapPoint(id,nameText.getText().toString(), AddressText.getText().toString(),ltg.latitude,ltg.longitude);
+                    Intent data = new Intent();
+                    data.putExtra("key", m);
+                    setResult(Activity.RESULT_OK, data);
+                    db.addPoint(m);
+                    finish();
+                }        });
+        }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
