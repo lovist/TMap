@@ -11,19 +11,21 @@ tools:context=".MapsActivity">
 
 
     <menu>
-        <!-- Refresh -->
+        <item
+            android:id="@+id/action_select_range"
+            android:showAsAction="never"
+            android:title="Keresési tartomány"
+            />
         <item
             android:id="@+id/action_points"
             android:showAsAction="ifRoom"
             android:title="Pontok kezelése"/>
 
-        <!-- Help -->
         <item
             android:id="@+id/action_streetview"
             android:showAsAction="never"
             android:title="StreetView"/>
 
-        <!-- Check updates -->
         <item
             android:id="@+id/action_check_updates"
             android:showAsAction="never"

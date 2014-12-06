@@ -1,6 +1,8 @@
 package com.example.lovasistvn.tmap;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
@@ -17,6 +19,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,6 +88,7 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
     private GoogleMap map; // Might be null if Google Play services APK is not available.
     ArrayList<LatLng> markerPoints;
     ArrayList<MapPoint> dbMapPoints;
+    Circle RangeCircle;     //drawing range circle
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,11 +108,11 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         map.setInfoWindowAdapter(new MyInfoWindowAdapter());
         map.setOnInfoWindowClickListener(this);
         map.getUiSettings().setAllGesturesEnabled(true);
+
         //DrawCircle(500);
         // Initializing
         markerPoints = new ArrayList<LatLng>();
         // Setting onclick event listener for the map
-
 
         MySQLiteHelper db = new MySQLiteHelper(this);
         Log.d("getAllPoints: ", "Getting ..");
@@ -202,8 +207,79 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
             }
         }
 
+        if(id==R.id.action_select_range){
+            final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+            alert.setTitle("Alert Box");
+            alert.setMessage("Edit Text");
+
+            LinearLayout linear=new LinearLayout(this);
+
+            linear.setOrientation(LinearLayout.VERTICAL);
+            TextView text=new TextView(this);
+            text.setText("Hello Android");
+            text.setPadding(10, 10, 10, 10);
+
+            final SeekBar seek=new SeekBar(this);
+            seek.setMax(25000);
+
+            linear.addView(seek);
+            linear.addView(text);
+
+            alert.setView(linear);
+
+            AlertDialog.Builder ok = alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    //Toast.makeText(getApplicationContext(), "OK Pressed",Toast.LENGTH_LONG).show();
+                   CalculateNearbyPoints(seek.getProgress());
+
+
+                }
+            });
+            alert.setNegativeButton("Cancel",new DialogInterface.OnClickListener()
+            {
+                public void onClick(DialogInterface dialog,int id)
+                {
+                    //Toast.makeText(getApplicationContext(), "Cancel Pressed",Toast.LENGTH_LONG).show();
+
+                }
+            });
+            alert.show();
+        }
+
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void CalculateNearbyPoints(int range){
+        map.clear();
+        if (RangeCircle != null) RangeCircle.remove();
+        DrawCircle(range);
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(map.getMyLocation().getLatitude(),
+                map.getMyLocation().getLongitude()), 9.0f));
+
+        int i;
+        Location ltg= new Location("");
+        Location myloc = map.getMyLocation();
+        LatLng mypos = new LatLng(map.getMyLocation().getLatitude(), map.getMyLocation().getLongitude());
+        Marker marker;
+        for (i = 0; i < dbMapPoints.size(); i++) {
+            Log.d("Index:", String.valueOf(i));
+            ltg.setLatitude(dbMapPoints.get(i).getPointlatitude());
+            ltg.setLongitude(dbMapPoints.get(i).getPointlongitude());
+            float dist = myloc.distanceTo(ltg);
+            if (dist<=range){
+                map.addMarker(new MarkerOptions()
+                                .position(new LatLng(
+                                        ltg.getLatitude(),
+                                        ltg.getLongitude()))
+                                .title(dbMapPoints.get(i).getPointname())
+                                .snippet(dbMapPoints.get(i).getPointaddress())
+                                .draggable(false)
+                );
+
+            }
+        }
     }
 
     @Override
@@ -337,7 +413,8 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
                 .strokeColor(Color.BLUE)
                 .strokeWidth(5);
 
-        Circle myCircle = map.addCircle(circleOptions);
+        RangeCircle = map.addCircle(circleOptions);
+
     }
 
     private String getDirectionsUrl(LatLng origin, LatLng dest) {
@@ -524,6 +601,7 @@ public class MapsActivity extends FragmentActivity implements OnMapLongClickList
         }
     }
 
+    //Internet is available?
     public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
