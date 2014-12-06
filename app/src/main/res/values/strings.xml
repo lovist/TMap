@@ -2,12 +2,29 @@
 <resources>
 
     <string name="app_name">TMap</string>
-    <string name="title_activity_maps">Map</string>
-    <string name="title_activity_masodik">masodikActivity</string>
+    <string name="title_activity_maps">TMap</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_pontok">pontok</string>
-    <string name="title_activity_new_point">NewPointActivity</string>
-    <string name="title_activity_street_view">StreetViewActivity</string>
+    <string name="title_activity_pontok">Pontok kezelése</string>
+    <string name="title_activity_new_point">Új pont felvétele</string>
+    <string name="title_activity_street_view">StreetView nézet</string>
+    <string name="no_selected_point">Nincs pont kiválasztva!!!</string>
+    <string name="no_internet_connection">Nincs internet kapcsolat!</string>
+    <string name="directions_in_progress">Útvonal tervezése folyamatban...</string>
+    <string name="nearby_points">Közeli pontok</string>
+    <string name="search_distance">Keresési távolság:</string>
+    <string name="pointaddress">"Cím: "</string>
+    <string name="travel_time">"Idő: "</string>
+    <string name="travel_distance">"Távolság: "</string>
+    <string name="new_point_added_message">Új pont lett hozzáadva hozzáadva..</string>
+    <string name="not_a_point_is_selected_message">Nem egy pont van kijelölve!</string>
+    <string name="point_has_been_modified_message">Pont módosítva...</string>
+    <string name="place_hint_text">Hely...</string>
+    <string name="search_text">Keresés</string>
+    <string name="new_point_name_text">Név:</string>
+    <string name="new_point_address_text">Cím:</string>
+    <string name="save_button_text">Mentés</string>
+    <string name="listview_point_name">Pont neve</string>
+    <string name="listview_point_address">pont címe</string>
 
 </resources>

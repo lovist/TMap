@@ -14,13 +14,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left|center_vertical"
         android:ems="10"
-        android:hint="Hely..."
+        android:hint="@string/place_hint_text"
         android:layout_alignParentLeft="true"/>
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Keresés"
+        android:text="@string/search_text"
         android:onClick="geoLocate"
         android:layout_alignParentRight="true" />
 
