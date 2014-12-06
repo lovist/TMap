@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.lovasistvn.tmap" >
+    package="hu.uniobuda.nik.p8bvi3" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -31,7 +31,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="com.example.lovasistvn.tmap.MapsActivity"
+            android:name="hu.uniobuda.nik.p8bvi3.MapsActivity"
             android:label="@string/title_activity_maps" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,15 +40,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.lovasistvn.tmap.PointsActivity"
+            android:name="hu.uniobuda.nik.p8bvi3.PointsActivity"
             android:label="@string/title_activity_pontok" >
         </activity>
         <activity
-            android:name="com.example.lovasistvn.tmap.NewPointActivity"
+            android:name="hu.uniobuda.nik.p8bvi3.NewPointActivity"
             android:label="@string/title_activity_new_point" >
         </activity>
         <activity
-            android:name="com.example.lovasistvn.tmap.StreetViewActivity"
+            android:name="hu.uniobuda.nik.p8bvi3.StreetViewActivity"
             android:label="@string/title_activity_street_view" >
         </activity>
     </application>
